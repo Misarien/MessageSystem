@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@ang
 // import { MesList, FriendList, FriendItem, MessageList } from './data';
 
 
-import { WebsocketService,FriendList, Userlist, MessageList, MessageItem} from '../websocket.service';
+import { WebsocketService, FriendItem, FriendList, Userlist, MessageList, MessageItem} from '../websocket.service';
 // import { WebsocketService,FriendItem,Session,MessageItem } from '../websocket.service';
 import { timer, Observable, fromEvent} from 'rxjs';
 import { UserService } from '../user.service';
@@ -41,14 +41,22 @@ export class ChatComponent implements OnInit {
 
   idList : number[] = null;
   isVisible : boolean = false;
-  isslect: boolean;
+  isselect: boolean;
   isgroup: boolean = false;
 
   friendlist : FriendList;
+  friend : FriendItem;
   userlist : Userlist[];
   messagelist : MessageList;
   addGroupUserList:AddGroupUserlist;
 
+  pressBoolean : boolean = false;
+  px : string = "";
+  py : string = "";
+  mesItem = MessageItem;
+  contentType : number = 0;
+  backMes : string = "";
+  isPress : boolean = false;
 
   constructor(
     public ws:WebsocketService, 
@@ -70,7 +78,6 @@ export class ChatComponent implements OnInit {
     ngOnInit(){
       this.friendlist = this.ws.wsFriendList;
       // console.log("friendList=", this.friendlist);
-      this.friendlist = this.ws.wsFriendList;
       
       // console.log("friendList=", this.friendlist);
       // console.log("wsfriendlist=", this.ws.wsFriendList);
@@ -79,34 +86,57 @@ export class ChatComponent implements OnInit {
       // console.log("messagelist = ", this.messagelist);
       // console.log("my=", this.us);
       // console.log("from_id=", this.my_id);
-      var now = new Date(); //设置滚动条保持在最底部
-      var div = document.getElementById('scrolldIV');
-      now.getTime();
-      div.scrollTop = div.scrollHeight;
+      this.scollbuttom();
       this.show=false
+      this.pressBoolean = false;
+      this.isPress = false;
     }
 
     his(event){//防止右键点击是弹出默认面板
       event.preventDefault();
+      if(event.button != 2 || !this.isPress){
+        this.pressBoolean = false;
+        this.isPress= false;
+        return;
+      }
     }
-    he(event){//可自定义右键事件
-      if(event.button == 2)
-        console.log("点击右键")
-      else if(event.button == 1){
-        console.log("点击了中键")
+    he(event, content: string){//可自定义右键事件
+      if(event.button != 2){
+        this.pressBoolean = false;
+        this.isPress = false;
+        return ;
       }
-      else if(event.button == 0){
-        console.log("点击了左键")
-      }
+      this.isPress = true;
+      this.backMes = content;
+      this.pressBoolean = true;
+      var px = event.clientX;
+      var py = event.clientY;
+      this.px = String(px) + 'px';
+      this.py = String(py) + 'px';
+      console.log("style=", this.px, this.py)
+    }
+    backdata(){
+      let msg = new(Protocol.Message)
+      msg.type = Protocol.Message.Type.REQUEST; //消息的类型的请求类型
+      msg.cmd = Protocol.Message.CtrlType.MSG_BACK;// 消息的功
+      msg.from = this.us.MyUserId;              // 消息发送方
+      msg.to = this.to_id;                   //消息接收方
+      msg.content = this.backMes;             //消息内容
+      msg.contentType = this.contentType;　  //消息类型
+      msg.isgroup = this.isgroup;                       //是不是群组消息
+      // console.log("this.msg && this.to_id = ", msg, this.to_id);
+      this.ws.sendMessage(msg);
+      this.backMes = "";
     }
 
-    test2(id: number,name : string, img: string, isgroup: boolean){
-      this.isslect = true;
+    test2(index: number, id: number,name : string, img: string, isgroup: boolean){
+      this.isselect = true;
       this.to_id = id;
       this.to_name = name;
       this.to_img = img;
       this.isgroup = isgroup;
       var flag : boolean = false;
+      this.friend = this.friendlist.List[index]
       for(let i = 0; i < this.friendlist.List.length; i++){
         if(id == this.friendlist.List[i].ID){
           this.friendlist.List[i].Counter = 0;
@@ -122,6 +152,8 @@ export class ChatComponent implements OnInit {
       if(!flag){
           this.showmsg = [];
       }
+      this.scollbuttom();
+
     }
     sendMsg() {
       this.content = this.content.replace(/^\s*/,'');//去除左边空格
@@ -139,8 +171,8 @@ export class ChatComponent implements OnInit {
       now.getTime();
       div.scrollTop = div.scrollHeight;
       switch(this.isgroup){
-        case false: this.sendC2C();break;
-        case true: this.sendToGoup();break;
+        case false: this.sendC2C();this.scollbuttom();break;
+        case true: this.sendToGoup();this.scollbuttom();break;
         default: console.log("default");break;
       }
     }
@@ -152,6 +184,7 @@ export class ChatComponent implements OnInit {
       msg.to = this.to_id;                   //消息接收方
       msg.content = this.content;             //消息内容
       msg.contentType = Protocol.Message.ContentType.TEXT;　  //消息类型
+      this.contentType = msg.contentType;
       msg.isgroup = false;                       //是不是群组消息
       // console.log("this.msg && this.to_id = ", msg, this.to_id);
       this.ws.sendMessage(msg);
@@ -166,6 +199,7 @@ export class ChatComponent implements OnInit {
       msg.to = this.to_id;
       msg.content = this.content;
       msg.contentType = Protocol.Message.ContentType.TEXT;
+      this.contentType = msg.contentType;
       // console.log("type=", msg.contentType)
       msg.isgroup = true;
       this.ws.sendMessage(msg);
@@ -269,6 +303,7 @@ export class ChatComponent implements OnInit {
              msg.to = this.to_id;
              msg.content = this.dfileurl;
              msg.contentType = filetype; 
+             this.contentType = msg.contentType;
              msg.isgroup = false;
              this.ws.sendMessage(msg);
              this.content = "";
@@ -371,7 +406,14 @@ export class ChatComponent implements OnInit {
     handleAddFriendOk(){
 
     }
-
+    scollbuttom(){
+      var dis = document.getElementById('scrolldIV');
+      // var now = new Date(); //设置滚动条保持在最底部
+      // now.getTime();
+      try {
+        dis.scrollTop = dis.scrollHeight;
+    } catch(err) { }   
+  }
 }
   
 export class AddGroupUserItem{

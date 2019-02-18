@@ -168,7 +168,7 @@ func getNearestContact(w http.ResponseWriter, r *http.Request, p httprouter.Para
 //获取最近联系人的最近聊天信息
 func getNearestContactMessage(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	param := r.Header.Get(defs.HEADER_FIELD_UID)
-	myId ,err := strconv.ParseInt(param,10,64)
+	_ ,err := strconv.ParseInt(param,10,64)
 	if len(param)==0 || err !=nil {
 		sendErrorResponse(w,defs.ErrorNotAuthUser)
 		return

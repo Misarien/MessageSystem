@@ -57,3 +57,4 @@ export class ChatRoom{
     is_group: boolean
     message_list: MessageItem[]
 }
+

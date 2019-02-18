@@ -54,7 +54,7 @@ export class WebsocketService {
   // 请求头部设置x-session-id
   createSessionHeader():HttpHeaders {
     let headers = new HttpHeaders();
-    headers = headers.set('"X-Session-Id', this.us.session_id);
+    headers = headers.set('X-Session-Id', this.us.session_id);
     return headers
   }
 
@@ -264,26 +264,26 @@ export class WebsocketService {
   //     console.log("历史消息",this.wsMessageList.List)
   //   })
   // }
-  // InitChatList(){
-  //   this.getChatList().subscribe((data: ChatList) => {
-  //     console.log("聊天列表",data);
-  //     let HL =  new(HistList);
-  //     HL.List = [];
-  //     for(let i=0;i<data.List.length;i++){
-  //       let FriItem:FriendItem = new(FriendItem);
-  //       FriItem.ID=data.List[i].Id;
-  //       FriItem.Name=data.List[i].Name;
-  //       FriItem.Headimg=data.List[i].Headimg;
-  //       FriItem.Isgroup=data.List[i].Isgroup;
-  //       FriItem.Counter=data.List[i].Counter;
-  //       this.wsFriendList.List.push(FriItem)
+  InitChatList(){
+    this.getAddressBook().subscribe((data) => {
+      console.log("通讯录",data);
+      let HL =  new(com.AddressBook);
+      HL.friends_list = [];
+    //   for(let i=0;i<data.List.length;i++){
+    //     let FriItem:FriendItem = new(FriendItem);
+    //     FriItem.ID=data.List[i].Id;
+    //     FriItem.Name=data.List[i].Name;
+    //     FriItem.Headimg=data.List[i].Headimg;
+    //     FriItem.Isgroup=data.List[i].Isgroup;
+    //     FriItem.Counter=data.List[i].Counter;
+    //     this.wsFriendList.List.push(FriItem)
 
-  //       let Ht = new(Hist);
-  //       Ht.ID = data.List[i].Id;
-  //       Ht.Isgroup = data.List[i].Isgroup;
-  //       HL.List.push(Ht)
-  //     }
-  //     this.HistoryMessage(HL)
-  //   })
-  // }
+    //     let Ht = new(Hist);
+    //     Ht.ID = data.List[i].Id;
+    //     Ht.Isgroup = data.List[i].Isgroup;
+    //     HL.List.push(Ht)
+    //   }
+    //   this.HistoryMessage(HL)
+    })
+  }
 }

@@ -2,13 +2,17 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@ang
 // import { MesList, FriendList, FriendItem, MessageList } from './data';
 
 
-import { WebsocketService, FriendItem, FriendList, Userlist, MessageList, MessageItem} from '../websocket.service';
+import { WebsocketService } from '../websocket.service';
+// import { NearestContact, NearestContactItem, AddressBookItem, AddressBook } from '../common/im'
 // import { WebsocketService,FriendItem,Session,MessageItem } from '../websocket.service';
 import { timer, Observable, fromEvent} from 'rxjs';
 import { UserService } from '../user.service';
 import { Injectable } from '@angular/core';
 import { UploadService } from '../file.service';
 import { Protocol } from '../protocol/Protocol';
+import { fromBytes } from 'long';
+import * as data from './data'
+import * as com from '../common/im'
 @Injectable()
 @Component({
   selector: 'app-chat',
@@ -23,9 +27,15 @@ export class ChatComponent implements OnInit {
   from_id = 1;
   to_id = 0;
 
-  my_id = this.us.MyUserId;
-  my_img_url = this.us.myImg;
-  my_name = this.us.myName;
+  my_id : number;
+  my_img_url : string;
+  my_name : string;
+
+  addressList : com.AddressBookItem[];
+  addressItem : com.AddressBookItem;
+
+
+
 
   to_name = ""
   to_img = "";
@@ -34,26 +44,26 @@ export class ChatComponent implements OnInit {
   content = "";
   // group_name = '';
   list = [];
-  showmsg : MessageItem[];
-  searchContent : string = "";
-  searchFriend : string = "";
-  groupName : string = "";
+  showmsg : com.MessageItem[];
 
-  idList : number[] = null;
+  // searchContent : string = "";
+  // searchFriend : string = "";
+  // groupName : string = "";
+
   isVisible : boolean = false;
   isselect: boolean;
   isgroup: boolean = false;
 
-  friendlist : FriendList;
-  friend : FriendItem;
-  userlist : Userlist[];
-  messagelist : MessageList;
+  friendlist : com.NearestContactItem[];
+  friend : com.NearestContactItem;
+  // userlist : Userlist[];
+  messagelist : com.ChatRoom[];
   addGroupUserList:AddGroupUserlist;
 
   pressBoolean : boolean = false;
   px : string = "";
   py : string = "";
-  mesItem = MessageItem;
+  // mesItem = MessageItem;
   contentType : number = 0;
   backMes : string = "";
   isPress : boolean = false;
@@ -66,7 +76,7 @@ export class ChatComponent implements OnInit {
     ) {
       this.addGroupUserList=new(AddGroupUserlist);
       this.addGroupUserList.AGlist = [];
-      this.userlist = [];
+      // this.userlist = [];
      }
 
 
@@ -76,16 +86,15 @@ export class ChatComponent implements OnInit {
     }
     
     ngOnInit(){
-      this.friendlist = this.ws.wsFriendList;
-      // console.log("friendList=", this.friendlist);
-      
-      // console.log("friendList=", this.friendlist);
-      // console.log("wsfriendlist=", this.ws.wsFriendList);
-      this.messagelist = this.ws.wsMessageList;
+      this.friendlist = data.nearContractList;
+      this.addressList = data.addressList;
+      this.messagelist = data.chatRoom;
+      console.log("friendlist = ", this.friendlist, this.addressList)
+      this.my_id = this.us.MyUserId;
+      this.my_img_url = this.us.myImg;
+      this.my_name = this.us.myName;
+      // console.log("id, name = ", this.my_id, this.my_name)
 
-      // console.log("messagelist = ", this.messagelist);
-      // console.log("my=", this.us);
-      // console.log("from_id=", this.my_id);
       this.scollbuttom();
       this.show=false
       this.pressBoolean = false;
@@ -125,7 +134,7 @@ export class ChatComponent implements OnInit {
       msg.contentType = this.contentType;　  //消息类型
       msg.isgroup = this.isgroup;                       //是不是群组消息
       // console.log("this.msg && this.to_id = ", msg, this.to_id);
-      this.ws.sendMessage(msg);
+      // this.ws.sendMessage(msg);
       this.backMes = "";
     }
 
@@ -136,22 +145,23 @@ export class ChatComponent implements OnInit {
       this.to_img = img;
       this.isgroup = isgroup;
       var flag : boolean = false;
-      this.friend = this.friendlist.List[index]
-      for(let i = 0; i < this.friendlist.List.length; i++){
-        if(id == this.friendlist.List[i].ID){
-          this.friendlist.List[i].Counter = 0;
+      this.friend = this.friendlist[index]
+      for(let i = 0; i < this.friendlist.length; i++){
+        if(id == this.friendlist[i].id){
+          this.friendlist[i].count = 0;
         }
       }
-      for(var i = 0; i < this.messagelist.List.length; i++){
-        if(id == this.messagelist.List[i].ID){
-          this.showmsg = this.messagelist.List[i].MList;
-          this.isgroup = this.messagelist.List[i].Isgroup;
+      for(var i = 0; i < this.messagelist.length; i++){
+        if(id == this.messagelist[i].id){
+          this.showmsg = this.messagelist[i].message_list;
+          this.isgroup = this.messagelist[i].is_group;
           flag = true;
         }
       }
       if(!flag){
           this.showmsg = [];
       }
+      console.log("showmsg=", this.showmsg);
       this.scollbuttom();
 
     }
@@ -187,7 +197,7 @@ export class ChatComponent implements OnInit {
       this.contentType = msg.contentType;
       msg.isgroup = false;                       //是不是群组消息
       // console.log("this.msg && this.to_id = ", msg, this.to_id);
-      this.ws.sendMessage(msg);
+      // this.ws.sendMessage(msg);
       this.content = "";
   }
  
@@ -202,7 +212,7 @@ export class ChatComponent implements OnInit {
       this.contentType = msg.contentType;
       // console.log("type=", msg.contentType)
       msg.isgroup = true;
-      this.ws.sendMessage(msg);
+      // this.ws.sendMessage(msg);
       this.content = "";
 
     }
@@ -213,13 +223,13 @@ export class ChatComponent implements OnInit {
         var btn = document.getElementById("search");
         btn.focus();
         this.isVisible = document.hasFocus();
-        this.userlist = [];
+        // this.userlist = [];
     }
     outMe(){
       var btn = document.getElementById("search");
       btn.blur();
       this.isVisible = document.hasFocus();
-      this.userlist = [];
+      // this.userlist = [];
     }
     cancelEditingTodo(){
       this.isVisible = false;
@@ -233,16 +243,16 @@ export class ChatComponent implements OnInit {
     }
     search(){
       // console.log("search=", this.searchContent);
-      this.ws.getUserList(this.searchContent).subscribe(data => {
-        this.userlist = data.Ulist;
-        this.flag = false;
-      })
-      if(this.searchContent == ""){
-        return;
-      }
-      if(this.userlist.length == 0) {
-        this.flag = true;
-      }
+      // this.ws.getUserList(this.searchContent).subscribe(data => {
+      //   this.userlist = data.Ulist;
+      //   this.flag = false;
+      // })
+      // if(this.searchContent == ""){
+      //   return;
+      // }
+      // if(this.userlist.length == 0) {
+      //   this.flag = true;
+      // }
     }
     addfriend(to: number){
       let msg = new(Protocol.Message)
@@ -251,7 +261,7 @@ export class ChatComponent implements OnInit {
       msg.from = this.us.MyUserId;
       msg.to = to;
       msg.time = Date.now();
-      this.ws.sendMessage(msg)
+      // this.ws.sendMessage(msg)
     }
 
 
@@ -305,7 +315,7 @@ export class ChatComponent implements OnInit {
              msg.contentType = filetype; 
              this.contentType = msg.contentType;
              msg.isgroup = false;
-             this.ws.sendMessage(msg);
+            //  this.ws.sendMessage(msg);
              this.content = "";
           }
          
@@ -346,15 +356,15 @@ export class ChatComponent implements OnInit {
     isAddGroupVisible = false;
     isAddGroupConfirmLoading = false;
     showAddGroupModal(): void {
-      for(let i=0;i<this.ws.wsFriendList.List.length;i++){
-        if(this.ws.wsFriendList.List[i].Isgroup){continue;}
-        let item = new(AddGroupUserItem);
-        item.ID=Number(this.ws.wsFriendList.List[i].ID);
-        item.Name=this.ws.wsFriendList.List[i].Name;
-        item.Headimg=this.ws.wsFriendList.List[i].Headimg;
-        item.Check = false;
-        this.addGroupUserList.AGlist.push(item);
-      }
+      // for(let i=0;i<this.ws.wsFriendList.List.length;i++){
+      //   if(this.ws.wsFriendList.List[i].Isgroup){continue;}
+      //   let item = new(AddGroupUserItem);
+      //   item.ID=Number(this.ws.wsFriendList.List[i].ID);
+      //   item.Name=this.ws.wsFriendList.List[i].Name;
+      //   item.Headimg=this.ws.wsFriendList.List[i].Headimg;
+      //   item.Check = false;
+      //   this.addGroupUserList.AGlist.push(item);
+      // }
       this.isAddGroupVisible = true;
     }
     handleAddGroupCancel(): void {
@@ -384,7 +394,7 @@ export class ChatComponent implements OnInit {
         }
       }
       msg.userlist.push(this.us.MyUserId);
-      this.ws.sendMessage(msg);
+      // this.ws.sendMessage(msg);
       this.addGroupUserList.AGlist = [];
       this.GroupName = '';
       this.isAddGroupVisible = false;

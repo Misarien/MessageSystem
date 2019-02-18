@@ -30,23 +30,23 @@
             <!-- 3 -->
             <div class = "message1" id="scrolldIV" >
                 <div *ngFor="let item of showmsg; let i = index; let last = last" >
-                    <div *ngIf="item.From != my_id" id = "box"><!--接受的消息-->
-                        <div *ngIf="item.ContentType == 0">{{item.Content}}</div>
-                        <div *ngIf="item.ContentType == 1">     
-                            <div class="picture" [ngStyle]="{ 'background-image': 'url('+item.Content+ ')'}"></div>
+                    <div *ngIf="item.from != my_id" id = "box"><!--接受的消息-->
+                        <div *ngIf="item.content_type == 0">{{item.content}}</div>
+                        <div *ngIf="item.content_type == 1">     
+                            <div class="picture" [ngStyle]="{ 'background-image': 'url('+item.content+ ')'}"></div>
                         </div>
-                        <div *ngIf="item.ContentType == 2"  (mouseup)="he($event)" (contextmenu)="his($event)">
+                        <div *ngIf="item.content_type == 2"  (mouseup)="he($event)" (contextmenu)="his($event)">
                             <img src="/files/uknow.png" class="picture" >
                             <button class="upload-btn" (click)=" downloadFile()"> 下载
                             </button>
                         </div>
                     </div>
-                    <div *ngIf="item.From == my_id" id="box1"><!--发送的消息-->
-                        <div *ngIf="item.ContentType != 1 && item.ContentType != 2"  (contextmenu)="his($event)" (mouseup)="he($event, item, i)" >{{item.Content}}</div>
-                        <div *ngIf="item.ContentType == 1"  (mouseup)="he($event, item.Content)" (contextmenu)="his($event)">     
-                            <div class="picture" [ngStyle]="{ 'background-image': 'url('+item.Content+ ')'}"></div>
+                    <div *ngIf="item.from == my_id" id="box1"><!--发送的消息-->
+                        <div *ngIf="item.content_type != 1 && item.content_type != 2"  (contextmenu)="his($event)" (mouseup)="he($event, item, i)" >{{item.content}}</div>
+                        <div *ngIf="item.content_type == 1"  (mouseup)="he($event, item.content)" (contextmenu)="his($event)">     
+                            <div class="picture" [ngStyle]="{ 'background-image': 'url('+item.content+ ')'}"></div>
                         </div>
-                        <div *ngIf="item.ContentType == 2"  (mouseup)="he($event)" (contextmenu)="his($event)">
+                        <div *ngIf="item.content_type == 2"  (mouseup)="he($event)" (contextmenu)="his($event)">
                             <img src="/files/uknow.png" class="picture" >
                             <button class="upload-btn" (click)=" downloadFile()"> 下载
                             </button>
@@ -77,10 +77,10 @@
                           <div *ngIf="searchFriend">
                               <div *ngIf="flag;else Show">查无此人</div>
                               <ng-template #Show>
-                                  <div *ngFor="let item of userlist">
+                                  <!-- <div *ngFor="let item of userlist">
                                       <img src = "{{item.Img_url}}" class = "img">
                                       {{item.Name}}
-                                  </div>
+                                  </div> -->
                               </ng-template>
                           </div>
                       </div>
@@ -115,11 +115,11 @@
         <td rowspan="3" colspan="3">
             <!-- 4 -->
             <div class = "list" >
-                <li  class = "item" [class.selected]="item == friend" *ngFor="let item of friendlist.List; let i = index" (click) = "test2(i, item.ID,item.Name, item.Headimg, item.Isgroup)">
-                    <nz-badge [nzCount]="item.Counter" *ngIf="list!=NULL">
-                        <img src = "{{item.Headimg}}" class = "img">
+                <li  class = "item" [class.selected]="item == friend" *ngFor="let item of friendlist; let i = index" (click) = "test2(i, item.id,item.name, item.head_img, item.is_group)">
+                    <nz-badge [nzCount]="item.count" *ngIf="list!=NULL">
+                        <img src = "{{item.head_img}}" class = "img">
                     </nz-badge>
-                 {{item.Name}}
+                 {{item.name}}
                 </li>
             </div>
         </td>

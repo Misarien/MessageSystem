@@ -24,13 +24,13 @@ export class LoginComponent {
           let respond:any = data["body"];
           alert("登录成功");
           this.us.isLogin=true;
-          this.us.MyUserId = respond['Id'];
-          this.us.myImg = respond['HeadImg'];
-          this.us.myName = respond['Name']
+          this.us.MyUserId = respond['id'];
+          this.us.myImg = respond['head_img'];
+          this.us.myName = respond['name']
           this.router.navigate(['chat']);
           console.log("data=", data, this.us.MyUserId, this.us.myName);
           // this.ws.createSocket(environment.websocketUrl);
-          this.ws.InitChatList();
+          // this.ws.InitChatList();
         }
         else{
           alert("登录失败")

@@ -17,20 +17,23 @@ export class LoginComponent {
   password = ''
   
   submit(){
-      let body = {Name:this.name,Password:this.password}
-      this.us.postLoginData(body).subscribe(data =>{
-        if(data['Ok']){
-          // this.us.isLogin=true;
-          // this.router.navigate(['']);
-          // console.log(data['Uid']);
-          // this.us.MyUserId = data['Uid'];
-          // this.us.myName = data['Name'];
-          // this.us.myImg = data['Headimg'];
+      let body = {name:this.name,password:this.password}
+      this.us.postLoginData(body).subscribe(data => {
+        console.log("data.status=", data.status)
+        if(data.status==200){
+          let respond:any = data["body"];
+          alert("登录成功");
+          this.us.isLogin=true;
+          this.us.MyUserId = respond['Id'];
+          this.us.myImg = respond['HeadImg'];
+          this.us.myName = respond['Name']
+          this.router.navigate(['chat']);
+          console.log("data=", data, this.us.MyUserId, this.us.myName);
           // this.ws.createSocket(environment.websocketUrl);
-          // this.ws.InitChatList();
-          console.log("logindata=", data)
-        }else{
-          alert(data['Errmsg']);
+          this.ws.InitChatList();
+        }
+        else{
+          alert("登录失败")
         }
       })
   }

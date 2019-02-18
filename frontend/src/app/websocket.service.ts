@@ -17,6 +17,7 @@ export class WebsocketService {
   global_message: com.GlobalMessage;  //全局全部消息
   nearest_contact:com.NearestContact; // 最近联系人
   address_book: com.AddressBook; // 通讯录
+  all_chat_room : com.AllChatRoom; //全部聊天室
 
 
   collection: Protocol.Message = new(Protocol.Message);
@@ -55,30 +56,66 @@ export class WebsocketService {
   createSessionHeader():HttpHeaders {
     let headers = new HttpHeaders();
     headers = headers.set('X-Session-Id', this.us.session_id);
+    console.log("session=", this.us.session_id)
     return headers
   }
 
   // 获取通讯录
   getAddressBook():Observable<any>{
-    let url  = environment.apiUrl+"/api/address-book"
+    let url  = environment.apiUrl+"/address-book"
     return this.http.get(url, {headers:this.createSessionHeader()})
   }
 
   // 获取最近联系人
   getNearestContact():Observable<any>{
-    let url  = environment.apiUrl+"/api/recent-contact"
+    let url  = environment.apiUrl+"/recent-contact"
     return this.http.get(url, {headers:this.createSessionHeader()})
   }
 
   //获取最近联系人的最近聊天信息
   getNearestContactMessage(){
-    let url  = environment.apiUrl+"/api/recent-contact-message"
+    let url  = environment.apiUrl+"/recent-contact-message"
     return this.http.get(url, {headers:this.createSessionHeader(),observe:'response'})
   }
   
+  getNearestList(){//获取最近联系人
+      this.getNearestContact().subscribe((data) => {
+        console.log("最近联系人",data);
+        if(data.contact_list.length == 0){
+          data.contact_list = [];
+        }
+        // let HL =  new(com.NearestContact);
+        this.nearest_contact.contact_list = [];
+        // this.nearest_contact.contact_list = data.contact_list;
+        // console.log("contact_list = ", this.nearest_contact.contact_list)
 
-
-
+        // return data
+        for(let i=0;i<data.contact_list.length;i++){
+          let FriItem:com.NearestContactItem = new(com.NearestContactItem);
+          FriItem.id=data.contact_list[i].id;
+          FriItem.name=data.contact_list[i].name;
+          FriItem.head_img=data.contact_list[i].head_img;
+          FriItem.is_group=data.contact_list[i].is_group;
+          FriItem.count=data.contact_list[i].count;
+          this.nearest_contact.contact_list.push(FriItem)
+        }
+        console.log("contact_list = ", this.nearest_contact.contact_list)
+        this.getNearestMessage();
+      })
+  }
+    getNearestMessage(){
+      this.getNearestContactMessage().subscribe(data =>{
+        console.log("最近联系人的消息", data);
+        let allChatRoom = new(com.AllChatRoom);
+        allChatRoom.chatroomList = [];
+        allChatRoom.size = 0;
+        allChatRoom.chatroomList = data.body['chat_room_list'];
+        allChatRoom.size = data.body['size'];
+        console.log("allChatRoom = ", allChatRoom) 
+        this.all_chat_room = allChatRoom;
+      })
+      
+    }
 
 
   // //分析消息

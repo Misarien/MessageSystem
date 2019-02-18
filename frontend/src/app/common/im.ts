@@ -58,3 +58,7 @@ export class ChatRoom{
     message_list: MessageItem[]
 }
 
+export class AllChatRoom {
+    size : number;
+    chatroomList : ChatRoom[];
+}

@@ -115,7 +115,7 @@
         <td rowspan="3" colspan="3">
             <!-- 4 -->
             <div class = "list" >
-                <li  class = "item" [class.selected]="item == friend" *ngFor="let item of friendlist; let i = index" (click) = "test2(i, item.id,item.name, item.head_img, item.is_group)">
+                <li  class = "item" [class.selected]="item == friend" *ngFor="let item of friendlist.contact_list; let i = index" (click) = "test2(i, item.id,item.name, item.head_img, item.is_group)">
                     <nz-badge [nzCount]="item.count" *ngIf="list!=NULL">
                         <img src = "{{item.head_img}}" class = "img">
                     </nz-badge>

@@ -9,11 +9,13 @@ import { environment } from '../../environments/environment';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
+
 export class LoginComponent {
 
   constructor(private us: UserService,private ws: WebsocketService,private router: Router) { }
   name =''
   password = ''
+  
   submit(){
       let body = {Name:this.name,Password:this.password}
       this.us.postLoginData(body).subscribe(data =>{
@@ -30,7 +32,6 @@ export class LoginComponent {
         }else{
           alert(data['Errmsg']);
         }
-
       })
   }
 }

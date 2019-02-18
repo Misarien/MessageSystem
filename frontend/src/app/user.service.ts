@@ -4,17 +4,18 @@ import { environment } from '../environments/environment';
 @Injectable()
 export class UserService {
   constructor(private http: HttpClient) { }
-  public session_id = '';
+
   public isLogin = false;
   public MyUserId = -1;
   public myImg = "";
-  public myName = ""
+  public myName = "";
+  public session_id = '';
   configUrl = environment.apiUrl;
   loginUrl = this.configUrl+"/login"
   signupUrl = this.configUrl+'/signup'
   quitUrl = this.configUrl+'/quit'
   postLoginData(data) {
-    return this.http.post(this.loginUrl, data,{observe:'response'});
+    return this.http.post(this.loginUrl, data);
   }
   postSignupData(data) {
     return this.http.post(this.signupUrl, data);

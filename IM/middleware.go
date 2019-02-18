@@ -19,14 +19,12 @@ func NewMiddleWareHandler(r *httprouter.Router) http.Handler {
 
 func (m middleWareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//check session
-	//var ok bool
 	r,_ = validateUserSession(r)
 	m.r.ServeHTTP(w, r)
 }
 
 func validateUserSession(r *http.Request)(*http.Request,bool){
 
-	Logger.Debug(r.URL.Path)
 	uid, ok := session.IsSessionExpired(r)
 	if ok {
 		return r,false

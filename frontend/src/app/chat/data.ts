@@ -59,23 +59,28 @@ export const nearContractList : com.NearestContactItem[] = [
 
 export const id_1_message : com.MessageItem[] = [
     {id: 1001, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000001, is_group: false},
-    {id: 1001, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000002, is_group: false},
-    {id: 1001, from: 1, to: 100018, content: "测试", content_type: 0, arrive_time: 1000003, is_group: false},
-    {id: 1001, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000004, is_group: false},
-    {id: 1001, from: 1, to: 100018, content: "测试", content_type: 0, arrive_time: 1000005, is_group: false},
-    {id: 1001, from: 1, to: 100018, content: "测试", content_type: 0, arrive_time: 1000006, is_group: false},
-    {id: 1001, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000007, is_group: false},
-    {id: 1001, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000008, is_group: false},
+    {id: 1002, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000002, is_group: false},
+    {id: 1003, from: 1, to: 100018, content: "测试", content_type: 0, arrive_time: 1000003, is_group: false},
+    {id: 1004, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000004, is_group: false},
+    {id: 1005, from: 1, to: 100018, content: "测试", content_type: 0, arrive_time: 1000005, is_group: false},
+    {id: 1006, from: 1, to: 100018, content: "测试", content_type: 0, arrive_time: 1000006, is_group: false},
+    {id: 1007, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000007, is_group: false},
+    {id: 1008, from: 100018, to: 1, content: "测试", content_type: 0, arrive_time: 1000008, is_group: false},
 ]
 export const id_2_message : com.MessageItem[] = [
     {id: 1001, from: 100018, to: 2, content: "测试", content_type: 0, arrive_time: 1000001, is_group: false},
-    {id: 1001, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000002, is_group: false},
-    {id: 1001, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000003, is_group: false},
-    {id: 1001, from: 100018, to: 2, content: "测试", content_type: 0, arrive_time: 1000004, is_group: false},
-    {id: 1001, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000005, is_group: false},
-    {id: 1001, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000006, is_group: false},
-    {id: 1001, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000007, is_group: false},
-    {id: 1001, from: 100018, to: 2, content: "测试", content_type: 0, arrive_time: 1000008, is_group: false},
+    {id: 1002, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000002, is_group: false},
+    {id: 1003, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000003, is_group: false},
+    {id: 1004, from: 100018, to: 2, content: "测试", content_type: 0, arrive_time: 1000004, is_group: false},
+    {id: 1005, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000005, is_group: false},
+    {id: 1006, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000006, is_group: false},
+    {id: 1007, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000007, is_group: false},
+    {id: 1008, from: 100018, to: 2, content: "测试", content_type: 0, arrive_time: 1000008, is_group: false},
+    {id: 1009, from: 100018, to: 2, content: "测试", content_type: 0, arrive_time: 1000004, is_group: false},
+    {id: 1010, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000005, is_group: false},
+    {id: 1011, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000006, is_group: false},
+    {id: 1011, from: 2, to: 100018, content: "测试", content_type: 0, arrive_time: 1000007, is_group: false},
+    {id: 1011, from: 100018, to: 2, content: "测试", content_type: 0, arrive_time: 1000008, is_group: false},
 ]
 export const id_3_message : com.MessageItem[] = [
     {id: 1001, from: 3, to: 100018, content: "测试", content_type: 0, arrive_time: 1000001, is_group: false},
@@ -84,8 +89,6 @@ export const id_3_message : com.MessageItem[] = [
     {id: 1001, from: 100018, to: 3, content: "测试", content_type: 0, arrive_time: 1000004, is_group: false},
     {id: 1001, from: 100018, to: 3, content: "测试", content_type: 0, arrive_time: 1000005, is_group: false},
     {id: 1001, from: 3, to: 100018, content: "测试", content_type: 0, arrive_time: 1000006, is_group: false},
-    {id: 1001, from: 100018, to: 3, content: "测试", content_type: 0, arrive_time: 1000007, is_group: false},
-    {id: 1001, from: 100018, to: 3, content: "测试", content_type: 0, arrive_time: 1000008, is_group: false},
 ]
 
 export const chatRoom : com.ChatRoom[] = [

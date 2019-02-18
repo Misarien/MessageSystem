@@ -11,7 +11,7 @@ export class UserService {
   public myName = ""
   configUrl = environment.apiUrl;
   loginUrl = this.configUrl+"/login"
-  signupUrl = this.configUrl+'/signup'
+  signupUrl = this.configUrl+'/register'
   quitUrl = this.configUrl+'/quit'
   postLoginData(data) {
     return this.http.post(this.loginUrl, data);

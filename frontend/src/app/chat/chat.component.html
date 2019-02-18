@@ -35,7 +35,7 @@
                         <div *ngIf="item.ContentType == 1">     
                             <div class="picture" [ngStyle]="{ 'background-image': 'url('+item.Content+ ')'}"></div>
                         </div>
-                        <div *ngIf="item.ContentType == 2">
+                        <div *ngIf="item.ContentType == 2"  (mouseup)="he($event)" (contextmenu)="his($event)">
                             <img src="/files/uknow.png" class="picture" >
                             <button class="upload-btn" (click)=" downloadFile()"> 下载
                             </button>

@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 // import { MesList, FriendList, FriendItem, MessageList } from './data';
-
-
+import { DomSanitizer } from '@angular/platform-browser'
+import { FileUploader } from 'ng2-file-upload';
 import { WebsocketService } from '../websocket.service';
 // import { NearestContact, NearestContactItem, AddressBookItem, AddressBook } from '../common/im'
 // import { WebsocketService,FriendItem,Session,MessageItem } from '../websocket.service';
@@ -13,6 +13,7 @@ import { Protocol } from '../protocol/Protocol';
 import { fromBytes } from 'long';
 import * as data from './data'
 import * as com from '../common/im'
+import { addAllToArray } from '@angular/core/src/render3/util';
 @Injectable()
 @Component({
   selector: 'app-chat',
@@ -55,9 +56,10 @@ export class ChatComponent implements OnInit {
   isgroup: boolean = false;
 
   friendlist : com.NearestContact;
+  addressbook : com.AddressBook;
   friend : com.NearestContactItem;
   // userlist : Userlist[];
-  messagelist : com.ChatRoom[];
+  messagelist : com.MessageItem[];
   addGroupUserList:AddGroupUserlist;
 
   pressBoolean : boolean = false;
@@ -72,10 +74,12 @@ export class ChatComponent implements OnInit {
     public ws:WebsocketService, 
     private us:UserService,    // 里面有 我的Id: this.us.MyUserId
     private upload: UploadService ,
-    private el: ElementRef
+    private el: ElementRef,
+    public _d: DomSanitizer
     ) {
       this.addGroupUserList=new(AddGroupUserlist);
       this.addGroupUserList.AGlist = [];
+      
       // this.userlist = [];
      }
 
@@ -88,9 +92,9 @@ export class ChatComponent implements OnInit {
     ngOnInit(){
       // this.friendlist = data.nearContractList;
       this.addressList = data.addressList;
-      this.messagelist = data.chatRoom;
+      // this.messagelist = data.chatRoom;
       this.friendlist = this.ws.nearest_contact;
-      console.log("friendlist = ", this.friendlist)
+      // console.log("friendlist = ", this.friendlist)
       this.my_id = this.us.MyUserId;
       this.my_img_url = this.us.myImg;
       this.my_name = this.us.myName;
@@ -100,6 +104,15 @@ export class ChatComponent implements OnInit {
       this.show=false
       this.pressBoolean = false;
       this.isPress = false;
+    }
+
+    getNear(){
+      this.friendlist = this.ws.nearest_contact;
+      // console.log("getNear", this.friendlist);
+    }
+    getAddress(){
+      this.friendlist = this.ws.address_book;
+      // console.log("getAddreses", this.friendlist);
     }
 
     his(event){//防止右键点击是弹出默认面板
@@ -140,6 +153,19 @@ export class ChatComponent implements OnInit {
     }
 
     test2(index: number, id: number,name : string, img: string, isgroup: boolean){
+      //////////////////////////////////////////
+      let msg = new(Protocol.Message)
+      msg.type = Protocol.Message.Type.ACK;
+      msg.cmd = Protocol.Message.CtrlType.NONE;
+      msg.from =  this.us.MyUserId;
+      msg.to = id;
+      msg.content = this.content;
+      msg.contentType = Protocol.Message.ContentType.TEXT;
+      this.contentType = msg.contentType;
+      // console.log("type=", msg.contentType)
+      msg.isgroup = isgroup;
+      this.ws.sendMessage(msg);
+      ///////////////////////////////////
       this.isselect = true;
       this.to_id = id;
       this.to_name = name;
@@ -147,22 +173,28 @@ export class ChatComponent implements OnInit {
       this.isgroup = isgroup;
       var flag : boolean = false;
       this.friend = this.friendlist.contact_list[index];
+
       for(let i = 0; i < this.friendlist.contact_list.length; i++){
         if(id == this.friendlist.contact_list[i].id){
           this.friendlist.contact_list[i].count = 0;
+          // this.showmsg = this.friendlist.contact_list[i].message_list;
+          // this.isgroup = this.friendlist.contact_list[i].is_group;
+          // flag = true;
         }
       }
-      for(var i = 0; i < this.messagelist.length; i++){
-        if(id == this.messagelist[i].id){
-          this.showmsg = this.messagelist[i].message_list;
-          this.isgroup = this.messagelist[i].is_group;
+
+      if(this.ws.global_message.chat_room_list.has(id)){
+        this.showmsg = this.ws.global_message.chat_room_list.get(id).message_list;
+        this.isgroup = this.ws.global_message.chat_room_list.get(id).is_group;
           flag = true;
-        }
       }
+      
+
+
       if(!flag){
           this.showmsg = [];
       }
-      console.log("showmsg=", this.showmsg);
+      // console.log("showmsg=", this.showmsg);
       this.scollbuttom();
 
     }
@@ -177,16 +209,15 @@ export class ChatComponent implements OnInit {
         console.log("输入内容为空")
         return;
       }
-      var now = new Date();
-      var div = document.getElementById('scrolldIV');
-      now.getTime();
-      div.scrollTop = div.scrollHeight;
-      switch(this.isgroup){
-        case false: this.sendC2C();this.scollbuttom();break;
-        case true: this.sendToGoup();this.scollbuttom();break;
-        default: console.log("default");break;
+      if(this.isgroup){
+        this.sendToGoup();
+      }else{
+        this.sendC2C();
       }
+      this.scollbuttom();
     }
+
+
     sendC2C(){
       let msg = new(Protocol.Message)
       msg.type = Protocol.Message.Type.REQUEST; //消息的类型的请求类型
@@ -198,7 +229,7 @@ export class ChatComponent implements OnInit {
       this.contentType = msg.contentType;
       msg.isgroup = false;                       //是不是群组消息
       // console.log("this.msg && this.to_id = ", msg, this.to_id);
-      // this.ws.sendMessage(msg);
+      this.ws.sendMessage(msg);
       this.content = "";
   }
  
@@ -213,35 +244,44 @@ export class ChatComponent implements OnInit {
       this.contentType = msg.contentType;
       // console.log("type=", msg.contentType)
       msg.isgroup = true;
-      // this.ws.sendMessage(msg);
+      this.ws.sendMessage(msg);
       this.content = "";
 
     }
-
-    
-
-    clickMe(){
-        var btn = document.getElementById("search");
-        btn.focus();
-        this.isVisible = document.hasFocus();
-        // this.userlist = [];
+    addfriend(to: number){
+      let msg = new(Protocol.Message)
+      msg.type = Protocol.Message.Type.REQUEST;
+      msg.cmd = Protocol.Message.CtrlType.CREATE_SESSION;
+      msg.from = this.us.MyUserId;
+      msg.to = to;
+      msg.time = Date.now();
+      // this.ws.sendMessage(msg)
     }
-    outMe(){
-      var btn = document.getElementById("search");
-      btn.blur();
-      this.isVisible = document.hasFocus();
-      // this.userlist = [];
-    }
-    cancelEditingTodo(){
-      this.isVisible = false;
-    }
-    flag : boolean;
-    keyUpSearch(content: string){
+    keyUpSearch(name: string){ //搜索添加好友
+      // this.ws.
       // this.ws.getUserList(this.searchContent).subscribe(data => {
       //   console.log("data2 = ", data.Ulist);
       //   this.userlist = data.Ulist;
       // })
     }
+
+    // clickMe(){
+    //     var btn = document.getElementById("search");
+    //     btn.focus();
+    //     this.isVisible = document.hasFocus();
+    //     // this.userlist = [];
+    // }
+    // outMe(){
+    //   var btn = document.getElementById("search");
+    //   btn.blur();
+    //   this.isVisible = document.hasFocus();
+    //   // this.userlist = [];
+    // }
+    // cancelEditingTodo(){
+    //   this.isVisible = false;
+    // }
+    flag : boolean;
+    
     search(){
       // console.log("search=", this.searchContent);
       // this.ws.getUserList(this.searchContent).subscribe(data => {
@@ -255,28 +295,49 @@ export class ChatComponent implements OnInit {
       //   this.flag = true;
       // }
     }
-    addfriend(to: number){
-      let msg = new(Protocol.Message)
-      msg.type = Protocol.Message.Type.REQUEST;
-      msg.cmd = Protocol.Message.CtrlType.CREATE_SESSION;
-      msg.from = this.us.MyUserId;
-      msg.to = to;
-      msg.time = Date.now();
-      // this.ws.sendMessage(msg)
+    
+/////////////////////////////////////////////////////////////////////
+    public uploader:FileUploader = new FileUploader({
+      url: "http://localhost:9988/ng2/uploadFile",
+      method: "POST",
+      itemAlias: "uploadedfile"
+    });
+    selectedFileOnChanged(event:any) {
+      // 打印文件选择名称
+
+      console.log("event.value=", event);
+    }
+    // D: 定义事件，上传文件
+    uploadFile2() {
+        // 上传
+        this.uploader.queue[0].onSuccess = function (response, status, headers) {
+            // 上传文件成功
+            if (status == 200) {
+                // 上传文件后获取服务器返回的数据
+                let tempRes = JSON.parse(response);
+            } else {
+                // 上传文件后获取服务器返回的数据错误
+                alert("");
+            }
+        };
+        this.uploader.queue[0].upload(); // 开始上传
     }
 
 
 ///////////////////////////////////////////////////////////////////
   picpath: string
   picurl: string
-  fileurl = 'http://localhost:9988/upload'
-  dfileurl="http://localhost:9988/upload/c4fb3e1e6b7e.jpg"
+  fileurl = 'http://localhost:9988/api/upload'
+  dfileurl='http://localhost:9988/files/9edbe55433e4_compress.jpg'
   filep = ""
+  aaaa="9edbe55433e4_compress.jpg"
+  
   filename: string
   show:boolean
   selectFile(event: any) {
     let fileList: FileList = event.target.files;
-    
+    console.log("fileList=", fileList)
+    console.log("event.target", event.target)
     this.uploadFile(fileList);
   }
 
@@ -297,14 +358,14 @@ export class ChatComponent implements OnInit {
           //.log(response);
           let filetype = -1;
           if (response["body"] != null) {
-            if (response["body"]["code"] != 1) {
-              console.log(response["body"]["data"]);
-              this.filep = response["body"]["data"]["originalfile"];
-              this.dfileurl=response["body"]["data"]["thumbnail"];
-              filetype = response["body"]["data"]["filetype"];
+            console.log(response)
+            if (response["body"] != null) {
+              console.log(response["body"]);
+              this.filep = response["body"]["originalfile"];
+              this.dfileurl=response["body"]["thumbnail"];
+              filetype = response["body"]["filetype"];
               console.log(this.dfileurl)
               this.show = true;
-
             }
             console.log("####",this.us.MyUserId,this.to_id,this.filep,this.dfileurl,filetype)
              let msg = new(Protocol.Message)
@@ -313,10 +374,13 @@ export class ChatComponent implements OnInit {
              msg.from =  this.us.MyUserId;
              msg.to = this.to_id;
              msg.content = this.dfileurl;
+             if(filetype == 2){
+              msg.content = this.filep;
+             }
              msg.contentType = filetype; 
              this.contentType = msg.contentType;
              msg.isgroup = false;
-            //  this.ws.sendMessage(msg);
+            this.ws.sendMessage(msg);
              this.content = "";
           }
          
@@ -331,6 +395,22 @@ export class ChatComponent implements OnInit {
     //this.getpath();
 
   }
+
+
+  isshowpicVisible = false;
+  aaa:string[]
+  aa:string[]
+  a:string
+  showpicModal(aaaa:string): void {
+    this.aaa = aaaa.split(".");
+    this.aa = this.aaa[0].split("_");
+    this.a = this.aa[0]+"."+this.aaa[1];
+    console.log(this.a)
+    this.isshowpicVisible = true;
+  }
+  handleshowpicCancel(): void {
+    this.isshowpicVisible = false;
+  }
   getpath() {
     this.filep = "getpic/3ea62ac5fb0758efadb15e36_compress.jpg"
     // console.log(this.filep);
@@ -340,10 +420,13 @@ export class ChatComponent implements OnInit {
     return;
   }
     // 调用浏览器的下载
-    downloadFile() {
+    downloadFile(filepath:string) {
       const a: HTMLAnchorElement = document.createElement('a');
-      a.href = this.filep;
-      a.download = 'download';
+      a.href = filepath;
+      let Removesuffix:string[] = filepath.split(".");
+      let Removeprefix:string[] = Removesuffix[0].split("/");
+      let name:string = Removeprefix[1];
+      a.download = name;
       a.click();
       a.remove();
       // console.log('download:' + a.href);
@@ -436,4 +519,3 @@ export class AddGroupUserItem{
 export class AddGroupUserlist{
 	AGlist: AddGroupUserItem[];
 }
-

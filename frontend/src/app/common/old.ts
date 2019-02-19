@@ -51,22 +51,22 @@
 
 
 //   // 建立websocket链接
-  // createSocket(url:string){
+//   createSocket(url:string){
 
-  //   let that = this
-  //   this.ws = new WebSocket(url);
+//     let that = this
+//     this.ws = new WebSocket(url);
 
-  //   this.ws.onopen = function() {console.log("WebSocket打开");};
-  //   this.ws.onmessage = function(evt) {
-  //     let reader = new FileReader();
-  //     reader.readAsArrayBuffer(evt.data);
-  //     reader.onload = function (e) {
-  //     let buf = new Uint8Array(reader.result as ArrayBuffer);
-  //     let conn = Protocol.Message.decode(buf);
-  //     //that.parseNotification(conn)    //收到消息解析后分析消息
-  //   }};
-  //   this.ws.onclose = function() {console.log("WebSocket关闭")};
-  // }
+//     this.ws.onopen = function() {console.log("WebSocket打开");};
+//     this.ws.onmessage = function(evt) {
+//       let reader = new FileReader();
+//       reader.readAsArrayBuffer(evt.data);
+//       reader.onload = function (e) {
+//       let buf = new Uint8Array(reader.result as ArrayBuffer);
+//       let conn = Protocol.Message.decode(buf);
+//       //that.parseNotification(conn)    //收到消息解析后分析消息
+//     }};
+//     this.ws.onclose = function() {console.log("WebSocket关闭")};
+//   }
 
 //   // 请求头部设置x-session-id
 //   createSessionHeader():HttpHeaders {
